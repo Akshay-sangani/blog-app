@@ -1,0 +1,120 @@
+import { Injectable } from '@nestjs/common';
+import { RequestUserDto } from '../dto/user/request-user.dto';
+import { ResponseUserDto } from '../dto/user/response-user.dto';
+import { Mapper } from '@automapper/core';
+import { InjectMapper } from '@automapper/nestjs';
+import { AllreadyExists } from 'src/common/exceptions/existException.exception';
+import { UserRepository } from '../repository/user.repository';
+import * as bcrypt from 'bcrypt';
+import { NotFoundErr } from 'src/common/exceptions/notFoundException.exception';
+import { User } from '../entities/user.entity';
+import { Request } from 'express';
+import { UpdateUserDto } from '../dto/user/update-user.dto';
+import { paramDto } from 'src/common/dto/params.dto';
+import { feildDto } from 'src/common/dto/feildDto.dto';
+import { EFilterOperation } from 'src/common';
+import { RoleRepository } from 'src/module/auth/repository/roles.reposiory';
+
+@Injectable()
+export class UserService {
+  constructor(
+    private readonly UserRepo: UserRepository,
+    private readonly RoleRepo: RoleRepository,
+    @InjectMapper() readonly mapper: Mapper,
+  ) {}
+
+  async register(RequestUserDto: RequestUserDto): Promise<ResponseUserDto> {
+    const existingUser = await this.UserRepo.existAsync({
+      email: RequestUserDto.email,
+    });
+    if (existingUser) {
+      console.log('object');
+      throw new AllreadyExists('User already exists with this email');
+    }
+    const hashPassword = await bcrypt.hashSync(RequestUserDto.password, 10);
+    RequestUserDto.password = hashPassword;
+
+    const role = await this.RoleRepo.getAsync(1);
+    if (role) {
+      RequestUserDto.role = role;
+    }
+    const user = await this.UserRepo.createAsync(RequestUserDto);
+    return user;
+  }
+
+  async getUserProfile(request: Request): Promise<ResponseUserDto[]> {
+    const email = request['user'].email;
+    const user = await this.UserRepo.getWithAsync({
+      relations: ['profile', 'posts', 'comments'],
+      email: email,
+    });
+    if (user.length === 0) {
+      throw new NotFoundErr(`User Not Found!!!`);
+    }
+    return this.mapper.mapArrayAsync(user, User, ResponseUserDto);
+  }
+
+  async remove(request: Request): Promise<string> {
+    const email = request['user'].email;
+    const user = await this.UserRepo.allAsync({ email: email });
+    if (user.length > 0) {
+      const deletedUser = await this.UserRepo.deleteAsync(user[0].id);
+    } else {
+      throw new NotFoundErr(`User not found!!!`);
+    }
+    return `Your account has been deleted!!! Please Register again`;
+  }
+
+  async updateUser(
+    request: Request,
+    UpdateUserDto: UpdateUserDto,
+  ): Promise<ResponseUserDto> {
+    const email = request['user'].email;
+    const user = await this.UserRepo.allAsync({ email: email });
+    const hashPassword = await bcrypt.hash(UpdateUserDto.password, 10);
+
+    if (user.length > 0) {
+      UpdateUserDto.id = user[0].id;
+      UpdateUserDto.password = hashPassword;
+      const userProfile = await this.UserRepo.updateAsync(UpdateUserDto);
+      return userProfile;
+    }
+    throw new NotFoundErr('User not found!!!');
+  }
+
+  async getAllUser(): Promise<ResponseUserDto[]> {
+    const users = await this.UserRepo.allAsync();
+    if (users.length > 0) {
+      return users;
+    }
+    throw new NotFoundErr(`No User Founds!!`);
+  }
+
+  async getUserById(paramDto: paramDto) {
+    console.log(paramDto);
+    const user = await this.UserRepo.getAsync(paramDto.id);
+    if (!user) {
+      throw new NotFoundErr(`User not Found!!!`);
+    }
+    return user;
+  }
+
+  async findByField(
+    feildDto: feildDto,
+    value: string,
+  ): Promise<ResponseUserDto[]> {
+    let user: ResponseUserDto[];
+    const filterOp = await this.UserRepo.FilterGenerate(
+      feildDto.feild,
+      value,
+      EFilterOperation.ILike,
+    );
+
+    user = await this.UserRepo.allAsync(filterOp);
+    if (user.length > 0) {
+      console.log(user);
+      return user;
+    }
+    throw new NotFoundErr(`User not Found with this ${feildDto.feild}!!!`);
+  }
+}
