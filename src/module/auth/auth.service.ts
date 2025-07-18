@@ -5,34 +5,43 @@ import { UserRepository } from '../user/repository/user.repository';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { RoleRepository } from './repository/roles.reposiory';
-export interface LoginResponse{
-    message : string
-    token : string
+export interface LoginResponse {
+  message: string;
+  token?: string;
+  status: boolean;
 }
 
 @Injectable()
 export class AuthService {
-        constructor(private readonly userRepo : UserRepository,
-            private readonly jwtService : JwtService) {}
-   
-    async login(LoginDto : LoginDto) : Promise<LoginResponse>{
-        const existingUser = await this.userRepo.getWithAsync({relations: ['role'],email : LoginDto.email});
-        if(existingUser.length === 0){
-            throw new NotFoundErr(`User does not exists with this Email!!!`);
-        }else{
-            const password = LoginDto.password;
-            const match = await bcrypt.compare(password,existingUser[0].password)
-            
-            if(match){
-                let token = await this.jwtService.signAsync({
-                    email: LoginDto.email,
-                    role : existingUser[0].role.id,
-                  });
-                console.log(token);
-              return {message : "Login Successfull",token : token};
-            }else{
-                throw new NotFoundErr(`User Email or Password is wrong!!!`)
-            }
-        }
+  constructor(
+    private readonly userRepo: UserRepository,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async login(LoginDto: LoginDto): Promise<LoginResponse> {
+    console.log(LoginDto);
+    const existingUser = await this.userRepo.getWithAsync({
+      relations: ['role'],
+      email: LoginDto.email,
+    });
+    if (existingUser.length === 0) {
+      throw new NotFoundErr('Email or password is Wrong');
+      // return { message: 'User Does not Exist', status: false };
+    } else {
+      const password = LoginDto.password;
+      const match = await bcrypt.compare(password, existingUser[0].password);
+
+      if (match) {
+        let token = await this.jwtService.signAsync({
+          email: LoginDto.email,
+          role: existingUser[0].role.id,
+        });
+        console.log(token);
+        return { status: true, message: 'Login Successfull', token: token };
+      } else {
+        // return { message: 'User Does not Exist', status: false };
+        throw new NotFoundErr('Email or password is Wrong');
+      }
     }
+  }
 }

@@ -15,7 +15,7 @@ export class PostProfile extends AutomapperProfile{
 
     override get profile(){
         return (mapper : Mapper)=>{
-            createMap(mapper,Post,ResponsePostDto,forMember((s)=>s.likedBy,mapFrom(d=>d.likedBy)), forMember((s)=>s.comments,mapFrom(d=>d.comments)))
+            createMap(mapper,Post,ResponsePostDto,forMember((s)=>s.likedBy,mapFrom(d=>d.likedBy)), forMember((s)=>s.comments,mapFrom(d=>d.comments)),forMember((d)=>d.author,mapFrom((s)=>s.author)))
             createMap(mapper,Comment,ResponseCommentDto)
             createMap(mapper,Post,CommonPostDto)
         }

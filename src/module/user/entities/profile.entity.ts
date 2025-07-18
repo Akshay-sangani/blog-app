@@ -29,7 +29,7 @@ export class Profile {
   @AutoMap()
   location: string;
 
-  @Column({ nullable: true })
+  @Column({type : 'bigint' , nullable: true})
   @AutoMap()
   phone: number;
 

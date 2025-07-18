@@ -29,7 +29,8 @@ export class CommentService {
       if (user.length > 0) {
         createComment.user = user[0];
         createComment.post = post;
-        console.log(createComment);
+        createComment.id = null
+        console.log("*****************************************",createComment);
         const comment = await this.commentRepo.createAsync(createComment);
         return comment;
       }

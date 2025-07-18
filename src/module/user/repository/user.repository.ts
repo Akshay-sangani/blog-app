@@ -37,7 +37,6 @@ export class UserRepository extends BaseRepo<
          { email: filterObj.email},
         ],
       });
-      console.log('>>>>>>>>>>>', es);
       return es;
     } catch (ex) {
       this.logger.error(ex);

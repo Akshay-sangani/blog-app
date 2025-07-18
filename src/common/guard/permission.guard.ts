@@ -59,6 +59,7 @@ export class PermissionGuard implements CanActivate {
           return flag;
       }
     });
+    console.log("***********************************object",flag);
     return flag;
   }
 }
