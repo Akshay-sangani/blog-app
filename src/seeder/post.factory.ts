@@ -4,7 +4,7 @@ import { setSeederFactory } from "typeorm-extension";
 
 export const PostFactory =setSeederFactory(Post,async()=>{
     const post = new Post()
-    post.title = faker.lorem.text()
-    post.content = faker.lorem.paragraph()
+    post.title = faker.lorem.sentence(2)
+    post.content = faker.lorem.paragraph(30)
     return post;
 })

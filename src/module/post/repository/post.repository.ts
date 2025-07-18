@@ -3,7 +3,7 @@ import { BaseRepo, DbException, EFilterOperation } from 'src/common';
 import { Post } from '../entities/post.entity';
 import { ResponsePostDto } from '../dto/post/response-post';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { InjectPinoLogger, Logger, PinoLogger } from 'nestjs-pino';
@@ -31,9 +31,16 @@ export class PostRepositry extends BaseRepo<Post, ResponsePostDto, Post['id']> {
     try {
       const es = await this.internalRepo.find({
         relations: filterObj.relations,
-        where: [{ id: filterObj.id },{content : filterObj.content} , {title : filterObj.content} , {author : {firstName : filterObj.content}}, {author : {lastName : filterObj.content}} , {author : {email : filterObj.content}} ],
+        where: [
+          { id: filterObj.id },
+          { content: filterObj.content },
+          { title: filterObj.content },
+          { author: { firstName: filterObj.content } },
+          { author: { lastName: filterObj.content } },
+          { author: { email: filterObj.content } },
+        ],
         order: {
-          createdAt: 'DESC', 
+          createdAt: 'DESC',
         },
       });
       return es;
@@ -46,9 +53,17 @@ export class PostRepositry extends BaseRepo<Post, ResponsePostDto, Post['id']> {
     try {
       const es = await this.internalRepo.find({
         relations: filterObj.relations,
-        where: [{ id: filterObj.id },{content : Like(`%${filterObj.content}%`)} , {title : Like(`%${filterObj.content}%`)}, {author : {firstName : Like(`%${filterObj.content}%`)}}, {author :{lastName :Like(`%${filterObj.content}%`)}} , {author : {email :Like(`%${filterObj.content}%`)}} ],
+        where: [
+          { id: filterObj.id },
+          { content: ILike(`%${filterObj.content}%`) },
+          { title: ILike(`%${filterObj.content}%`) },
+          { author: { firstName: ILike(`%${filterObj.content}%`) } },
+          { author: { lastName: ILike(`%${filterObj.content}%`) } },
+          { author: { email: ILike(`%${filterObj.content}%`) } },
+          { author: { profile: { userName: ILike(`%${filterObj.content}%`) } } },
+        ],
         order: {
-          createdAt: 'ASC',
+          createdAt: 'DESC',
         },
       });
       return es;
@@ -58,17 +73,17 @@ export class PostRepositry extends BaseRepo<Post, ResponsePostDto, Post['id']> {
     }
   }
 
-   public async FilterGenerate(
-      key: string,
-      value: unknown,
-      operation?: EFilterOperation,
-    ) {
-      try {
-        const filter = await this.createPartialWhere(key, value, operation);
-        return filter;
-      } catch (ex) {
-        this.logger.error(ex);
-        throw new DbException(ex);
-      }
+  public async FilterGenerate(
+    key: string,
+    value: unknown,
+    operation?: EFilterOperation,
+  ) {
+    try {
+      const filter = await this.createPartialWhere(key, value, operation);
+      return filter;
+    } catch (ex) {
+      this.logger.error(ex);
+      throw new DbException(ex);
     }
+  }
 }

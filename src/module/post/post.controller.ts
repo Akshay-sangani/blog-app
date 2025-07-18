@@ -64,6 +64,7 @@ export class PostController {
   })
   @Get('all-posts')
   findAll(): Promise<allPostRespones[]> {
+    console.log("object");
     return this.postService.findAll();
   }
 
@@ -159,7 +160,6 @@ export class PostController {
 
 
 
-
   @UseGuards(AuthGuard)
   @PermissionDecortaor(PermissionsEnum.ReadAll)
   @ApiOperation({
@@ -195,5 +195,18 @@ export class PostController {
   ): Promise<ResponsePostDto[]> {
     console.log("object...................................................................",query);
     return this.postService.seacrhPost(query);
+  }
+
+
+
+
+
+
+  @Get('/pages/Pagination')
+  postPaginationOnScroll(
+    @Query('page') page: number,
+  ): Promise<IPageable<ResponsePostDto>> {
+    console.log("object...................................",page);
+    return this.postService.paginationOnScroll(page);
   }
 }

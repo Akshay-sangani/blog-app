@@ -35,7 +35,7 @@ export class MainSeeder implements Seeder {
     }
     const savedUsers = await userRepo.create(users);
     const x = await userRepo.save(savedUsers);
-
+    
     const postRepo = DataSource.getRepository(Post);
     const postFactory = factoryManager.get(Post);
     const posts: Post[] = [];

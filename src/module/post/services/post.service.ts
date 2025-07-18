@@ -66,7 +66,7 @@ export class PostService {
 
   async findOne(paramDto: paramDto): Promise<ResponsePostDto[]> {
     const post = await this.PostRepo.getWithAsync({
-      relations: ['comments', 'author', 'likedBy','comments.user'],
+      relations: ['comments', 'author', 'likedBy', 'comments.user'],
       id: paramDto.id,
     });
     // console.log('>>>>>>>>>>>>>>>>>>>>>..', post);
@@ -158,7 +158,6 @@ export class PostService {
     return post;
   }
 
-
   async seacrhPost(content: string): Promise<ResponsePostDto[]> {
     //  const filterOp = await this.PostRepo.FilterGenerate(
     //       Post,
@@ -168,11 +167,22 @@ export class PostService {
     // console.log(content);
     const post = await this.PostRepo.searcing({
       content: content,
-      relations : ["author"]
+      relations: ['author'],
     });
     if (post.length === 0) {
       throw new NotFoundErr('No Post Found!!!');
     }
     return post;
+  }
+
+  async paginationOnScroll(page : number) : Promise<IPageable<ResponsePostDto>>  {
+    const posts = await this.PostRepo.pagedAsync({
+      $page : Number(page),
+      $perPage : 10,
+      $orderBy : 'createdAt',
+      $order : EOrder.Desc
+    })
+    console.log(posts);
+    return posts
   }
 }
