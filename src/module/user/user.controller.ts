@@ -102,10 +102,10 @@ export class UserController {
     summary: 'Get User by Id',
     description: 'This api for searching user by id ',
   })
-  @PermissionDecortaor(PermissionsEnum.ReadSelf)
+  @PermissionDecortaor(PermissionsEnum.ReadAll)
   @UseGuards(AuthGuard,PermissionGuard)
   @Get('byId/:id')
-  async getUserById(@Param() paramDto: paramDto): Promise<ResponseUserDto> {
+  async getUserById(@Param() paramDto: paramDto): Promise<ResponseUserDto[]> {
     return this.userService.getUserById(paramDto);
   }
 

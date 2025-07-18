@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -31,20 +32,17 @@ import { PermissionsEnum } from 'src/common/enums/permission.dto';
 import { PermissionGuard } from 'src/common/guard/permission.guard';
 
 @ApiTags('Post Apis')
-@UseGuards(AuthGuard)
 @ApiBearerAuth()
 @Controller('post')
 @UseInterceptors(ClassSerializerInterceptor)
-
 export class PostController {
   constructor(
     private readonly postService: PostService,
     readonly commentService: CommentService,
     readonly likeService: LikeService,
   ) {}
-
   @PermissionDecortaor(PermissionsEnum.WriteSelf)
-  @UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard, PermissionGuard)
   @ApiOperation({
     summary: 'Create Post',
     description: 'This api will insert post data ',
@@ -57,8 +55,8 @@ export class PostController {
     return this.postService.create(reuqest, createPostDto);
   }
 
-  @PermissionDecortaor(PermissionsEnum.ReadAll)
-  @UseGuards(PermissionGuard)
+  // @PermissionDecortaor(PermissionsEnum.ReadAll)
+  // @UseGuards(PermissionGuard)
   @ApiOperation({
     summary: 'Get All Post',
     description:
@@ -70,7 +68,7 @@ export class PostController {
   }
 
   @PermissionDecortaor(PermissionsEnum.ReadAll)
-  @UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard, PermissionGuard)
   @ApiOperation({
     summary: 'Get Post By id',
     description: 'This api returns post by id',
@@ -79,14 +77,14 @@ export class PostController {
   findOne(@Param() paramDto: paramDto): Promise<ResponsePostDto[]> {
     return this.postService.findOne(paramDto);
   }
-
+  
   @PermissionDecortaor(PermissionsEnum.WriteSelf)
-  @UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard, PermissionGuard)
   @ApiOperation({
     summary: 'Update Post By id',
     description: 'This api updates of logged in user',
   })
-  @Patch('/update/:id')
+  @Put('/update/:id')
   update(
     @Param() paramDto: paramDto,
     @Body() updatePostDto: UpdatePostDto,
@@ -95,14 +93,13 @@ export class PostController {
     console.log('>>>>>>>>>>>>>>>>>>>', updatePostDto);
     return this.postService.update(paramDto, updatePostDto, request);
   }
-
   @PermissionDecortaor(PermissionsEnum.DeleteSelf)
-  @UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard, PermissionGuard)
   @ApiOperation({
     summary: 'Delete Post By id',
     description: 'This api deletes post by id',
   })
-  @Delete('delete/:id')
+  @Delete('/delete/:id')
   remove(
     @Param() paramDto: paramDto,
     @Req() request: Request,
@@ -123,19 +120,47 @@ export class PostController {
     return this.postService.postPagination(PaginationDto);
   }
 
-  @PermissionDecortaor(PermissionsEnum.ReadAll) 
+  @PermissionDecortaor(PermissionsEnum.ReadAll)
+  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Post Comment api',
   })
-  @Post('comment/:id')
+
+
+
+
+
+
+
+
+
+
+  @Post('/comment/:id')
   createComment(
     @Req() reuqest: Request,
     @Body() createComment: RequestCommentDto,
     @Param() paramDto: paramDto,
   ): Promise<ResponseCommentDto> {
+    console.log("shfjhssfsfsssfs",createComment);
     return this.commentService.create(reuqest, createComment, paramDto);
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  @UseGuards(AuthGuard)
   @PermissionDecortaor(PermissionsEnum.ReadAll)
   @ApiOperation({
     summary: 'Like and unlike Post api',
@@ -147,13 +172,28 @@ export class PostController {
   ): Promise<string> {
     return this.likeService.likePost(request, paramDto);
   }
+  // @UseGuards(AuthGuard)
+  @PermissionDecortaor(PermissionsEnum.ReadAll)
+  @ApiOperation({
+    summary: `Searching and sorting on post by content`,
+  })
+  @Get('search/:contnet')
+  async searchPost(
+    @Query('content') content: string,
+    @Query() PaginationDto: PaginationDto,
+  ): Promise<IPageable<ResponsePostDto>> {
+    return this.postService.seacrhSort(content, PaginationDto);
+  }
 
   @PermissionDecortaor(PermissionsEnum.ReadAll)
   @ApiOperation({
-    summary : `Searching and sorting on post by content`
+    summary: `Searching and sorting on post by content`,
   })
-  @Get('search/:contnet')
-  async searchPost(@Query('content') content: string,@Query() PaginationDto : PaginationDto) : Promise<IPageable<ResponsePostDto>>{
-    return this.postService.seacrhSort(content,PaginationDto);
+  @Get('/Searchfilter/postUser')
+  async searchPostByAnything(
+    @Query('query') query: string,
+  ): Promise<ResponsePostDto[]> {
+    console.log("object...................................................................",query);
+    return this.postService.seacrhPost(query);
   }
 }
