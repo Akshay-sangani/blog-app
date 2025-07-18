@@ -40,7 +40,7 @@ import { LoggerModule } from 'nestjs-pino';
       throttlers: [
         {
           ttl: 60000,
-          limit: 10,
+          limit: 100,
         },
       ],
     }),

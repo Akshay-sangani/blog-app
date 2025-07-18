@@ -27,6 +27,7 @@ export class UserService {
     const existingUser = await this.UserRepo.existAsync({
       email: RequestUserDto.email,
     });
+    console.log(RequestUserDto);
     if (existingUser) {
       console.log('object');
       throw new AllreadyExists('User already exists with this email');
@@ -48,6 +49,8 @@ export class UserService {
       relations: ['profile', 'posts', 'comments'],
       email: email,
     });
+
+    // console.log(this.mapper.mapArrayAsync(user, User, ResponseUserDto));
     if (user.length === 0) {
       throw new NotFoundErr(`User Not Found!!!`);
     }
@@ -92,7 +95,10 @@ export class UserService {
 
   async getUserById(paramDto: paramDto) {
     console.log(paramDto);
-    const user = await this.UserRepo.getAsync(paramDto.id);
+    const user = await this.UserRepo.getWithAsync({
+      relations : ['profile' , 'posts','comments'],
+      id : paramDto.id
+    });
     if (!user) {
       throw new NotFoundErr(`User not Found!!!`);
     }

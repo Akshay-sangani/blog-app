@@ -1,39 +1,40 @@
-import { Injectable } from "@nestjs/common";
-import { BaseRepo, DbException } from "src/common";
-import { Post } from "../entities/post.entity";
-import { ResponsePostDto } from "../dto/post/response-post";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { InjectMapper } from "@automapper/nestjs";
-import { Mapper } from "@automapper/core";
-import { InjectPinoLogger, Logger, PinoLogger } from "nestjs-pino";
-export interface WithRelation{
-    relations : string[],
-    id? : number,
-  }
-  
-@Injectable()
-export class PostRepositry extends BaseRepo<Post,ResponsePostDto,Post['id']>{
-    constructor(
-        @InjectRepository(Post) postRepo : Repository<Post>,
-        @InjectMapper() mapper : Mapper,
-        @InjectPinoLogger() logger : PinoLogger
-    ){
-        super(postRepo,mapper,logger,Post,ResponsePostDto)
-    }
+import { Injectable } from '@nestjs/common';
+import { BaseRepo, DbException, EFilterOperation } from 'src/common';
+import { Post } from '../entities/post.entity';
+import { ResponsePostDto } from '../dto/post/response-post';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Like, Repository } from 'typeorm';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
+import { InjectPinoLogger, Logger, PinoLogger } from 'nestjs-pino';
+export interface WithRelation {
+  relations: string[];
+  id?: number;
+  content?: string;
+}
 
-    override get softDeleteEnabled(): boolean
-    {
-        return true;
-    }
-    
-  public async getWithAsync(filterObj?:WithRelation): Promise<Post[]> {
+@Injectable()
+export class PostRepositry extends BaseRepo<Post, ResponsePostDto, Post['id']> {
+  constructor(
+    @InjectRepository(Post) postRepo: Repository<Post>,
+    @InjectMapper() mapper: Mapper,
+    @InjectPinoLogger() logger: PinoLogger,
+  ) {
+    super(postRepo, mapper, logger, Post, ResponsePostDto);
+  }
+
+  override get softDeleteEnabled(): boolean {
+    return true;
+  }
+
+  public async getWithAsync(filterObj?: WithRelation): Promise<Post[]> {
     try {
       const es = await this.internalRepo.find({
-        relations : filterObj.relations,
-        where : {
-          id : filterObj.id,
-        }
+        relations: filterObj.relations,
+        where: [{ id: filterObj.id },{content : filterObj.content} , {title : filterObj.content} , {author : {firstName : filterObj.content}}, {author : {lastName : filterObj.content}} , {author : {email : filterObj.content}} ],
+        order: {
+          createdAt: 'DESC', 
+        },
       });
       return es;
     } catch (ex) {
@@ -41,4 +42,33 @@ export class PostRepositry extends BaseRepo<Post,ResponsePostDto,Post['id']>{
       throw new DbException(ex);
     }
   }
+  public async searcing(filterObj?: WithRelation): Promise<Post[]> {
+    try {
+      const es = await this.internalRepo.find({
+        relations: filterObj.relations,
+        where: [{ id: filterObj.id },{content : Like(`%${filterObj.content}%`)} , {title : Like(`%${filterObj.content}%`)}, {author : {firstName : Like(`%${filterObj.content}%`)}}, {author :{lastName :Like(`%${filterObj.content}%`)}} , {author : {email :Like(`%${filterObj.content}%`)}} ],
+        order: {
+          createdAt: 'ASC',
+        },
+      });
+      return es;
+    } catch (ex) {
+      this.logger.error(ex);
+      throw new DbException(ex);
+    }
+  }
+
+   public async FilterGenerate(
+      key: string,
+      value: unknown,
+      operation?: EFilterOperation,
+    ) {
+      try {
+        const filter = await this.createPartialWhere(key, value, operation);
+        return filter;
+      } catch (ex) {
+        this.logger.error(ex);
+        throw new DbException(ex);
+      }
+    }
 }

@@ -12,14 +12,14 @@ import { Post } from '../entities/post.entity';
 import { paramDto } from 'src/common/dto/params.dto';
 import { UpdatePostDto } from '../dto/post/update-post.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import {  EOrder, IPageable } from 'src/common/filtering';
+import { EOrder, IPageable } from 'src/common/filtering';
+import { EFilterOperation } from 'src/common';
 export interface allPostRespones {
   post: ResponsePostDto;
   likeCount: number;
 }
 @Injectable()
 export class PostService {
-
   constructor(
     readonly PostRepo: PostRepositry,
     readonly userRepo: UserRepository,
@@ -42,12 +42,13 @@ export class PostService {
 
   async findAll(): Promise<allPostRespones[]> {
     const posts = await this.PostRepo.getWithAsync({
-      relations: ['comments', 'likedBy'],
+      relations: ['comments', 'likedBy', 'author'],
     });
+    console.log(posts);
     const res = await this.mapper.mapArray(posts, Post, ResponsePostDto);
     if (res.length > 0) {
       const response = res.map((p) => p.likedBy.length);
-      const postData = res.filter((e)=>delete e.likedBy)
+      const postData = res.filter((e) => delete e.likedBy);
       const allPosts: allPostRespones[] = [];
       for (let i = 0; i < posts.length; i++) {
         const obj: allPostRespones = {
@@ -65,9 +66,10 @@ export class PostService {
 
   async findOne(paramDto: paramDto): Promise<ResponsePostDto[]> {
     const post = await this.PostRepo.getWithAsync({
-      relations: ['comments', 'author'],
+      relations: ['comments', 'author', 'likedBy','comments.user'],
       id: paramDto.id,
     });
+    // console.log('>>>>>>>>>>>>>>>>>>>>>..', post);
     if (post.length === 0) {
       throw new NotFoundErr(`No post found for this id`);
     }
@@ -130,8 +132,8 @@ export class PostService {
     const posts = await this.PostRepo.pagedAsync({
       $page: PaginationDto.page,
       $perPage: PaginationDto.perPage,
-      $order : PaginationDto.order,
-      $orderBy : `id`
+      $order: PaginationDto.order,
+      $orderBy: `id`,
     });
     if (!posts) {
       throw new NotFoundErr(`No Posts Found!!!`);
@@ -139,17 +141,37 @@ export class PostService {
     return posts;
   }
 
-  async seacrhSort(content: string,PaginationDto:PaginationDto): Promise<IPageable<ResponsePostDto>> {
-    
+  async seacrhSort(
+    content: string,
+    PaginationDto: PaginationDto,
+  ): Promise<IPageable<ResponsePostDto>> {
     const post = await this.PostRepo.pagedAsync({
       content: content,
       $orderBy: `id`,
       $order: PaginationDto.order,
-      $page : PaginationDto.page?? 1,
-      $perPage : PaginationDto.perPage ?? 3
+      $page: PaginationDto.page ?? 1,
+      $perPage: PaginationDto.perPage ?? 3,
     });
-    if(post.items.length === 0){
-      throw new NotFoundErr('No Post Found!!!')
+    if (post.items.length === 0) {
+      throw new NotFoundErr('No Post Found!!!');
+    }
+    return post;
+  }
+
+
+  async seacrhPost(content: string): Promise<ResponsePostDto[]> {
+    //  const filterOp = await this.PostRepo.FilterGenerate(
+    //       Post,
+    //       content,
+    //       EFilterOperation.ILike,
+    //     );
+    // console.log(content);
+    const post = await this.PostRepo.searcing({
+      content: content,
+      relations : ["author"]
+    });
+    if (post.length === 0) {
+      throw new NotFoundErr('No Post Found!!!');
     }
     return post;
   }
