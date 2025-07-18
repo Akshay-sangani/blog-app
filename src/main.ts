@@ -8,7 +8,7 @@ import * as session from 'express-session';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalInterceptors(new RpcGlobalExceptionInterceptor());
-  app.enableCors()
+  app.enableCors("*")
 
   
   app.useGlobalPipes(
