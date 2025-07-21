@@ -34,6 +34,9 @@ export class PostRepositry extends BaseRepo<Post, ResponsePostDto, Post['id']> {
         where: [{ id: filterObj.id },{content : filterObj.content} , {title : filterObj.content} , {author : {firstName : filterObj.content}}, {author : {lastName : filterObj.content}} , {author : {email : filterObj.content}} ],
         order: {
           createdAt: 'DESC', 
+          comments : {
+            createdAt : "DESC"
+          }
         },
       });
       return es;

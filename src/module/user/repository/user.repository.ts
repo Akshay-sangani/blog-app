@@ -36,6 +36,11 @@ export class UserRepository extends BaseRepo<
          { id: filterObj.id},
          { email: filterObj.email},
         ],
+        order : {
+          posts : {
+            createdAt : "DESC"
+          }
+        }
       });
       return es;
     } catch (ex) {
