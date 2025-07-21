@@ -3,7 +3,7 @@ import { BaseRepo, DbException, EFilterOperation } from 'src/common';
 import { Post } from '../entities/post.entity';
 import { ResponsePostDto } from '../dto/post/response-post';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Like, Repository  ,ILike} from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { InjectPinoLogger, Logger, PinoLogger } from 'nestjs-pino';
@@ -42,13 +42,14 @@ export class PostRepositry extends BaseRepo<Post, ResponsePostDto, Post['id']> {
       throw new DbException(ex);
     }
   }
-  public async searcing(filterObj?: WithRelation): Promise<Post[]> {
+  public async searching(filterObj?: WithRelation): Promise<Post[]> {
     try {
       const es = await this.internalRepo.find({
+      
         relations: filterObj.relations,
-        where: [{ id: filterObj.id },{content : Like(`%${filterObj.content}%`)} , {title : Like(`%${filterObj.content}%`)}, {author : {firstName : Like(`%${filterObj.content}%`)}}, {author :{lastName :Like(`%${filterObj.content}%`)}} , {author : {email :Like(`%${filterObj.content}%`)}} ],
+        where: [{ id: filterObj.id },{content : ILike(`%${filterObj.content}%`)} , {title : ILike(`%${filterObj.content}%`)}, {author : {firstName : ILike(`%${filterObj.content}%`)}}, {author :{lastName :ILike(`%${filterObj.content}%`)}} , {author : {email :ILike(`%${filterObj.content}%`)}} ],
         order: {
-          createdAt: 'ASC',
+          createdAt: 'DESC',
         },
       });
       return es;

@@ -166,7 +166,7 @@ export class PostService {
     //       EFilterOperation.ILike,
     //     );
     // console.log(content);
-    const post = await this.PostRepo.searcing({
+    const post = await this.PostRepo.searching({
       content: content,
       relations : ["author"]
     });
