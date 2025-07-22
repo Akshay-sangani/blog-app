@@ -196,4 +196,23 @@ export class PostController {
     console.log("object...................................................................",query);
     return this.postService.seacrhPost(query);
   }
+
+
+
+
+
+  @PermissionDecortaor(PermissionsEnum.ReadAll)
+  @ApiOperation({
+    summary: 'Post Pagination api',
+    description:
+      'This api return paginated reponse based on page number and count',
+  })
+  @Get('/pagination/data')
+  Paginaton(
+    @Query('page') page : number ,
+  ): Promise<IPageable<ResponsePostDto>> {
+    return this.postService.PaginationData(page);
+  }
+
+
 }

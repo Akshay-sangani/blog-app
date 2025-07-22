@@ -175,4 +175,20 @@ export class PostService {
     }
     return post;
   }
+
+   async PaginationData(
+   page: number,
+  ): Promise<IPageable<ResponsePostDto>> {
+    console.log(PaginationDto);
+    const posts = await this.PostRepo.pagedAsync({
+      $page: page,
+      $perPage : 6,
+      $orderBy: `createdAt`,
+      $order : EOrder.Desc
+    });
+    if (!posts) {
+      throw new NotFoundErr(`No Posts Found!!!`);
+    }
+    return posts;
+  }
 }
