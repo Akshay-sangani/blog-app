@@ -70,9 +70,9 @@ export class PostService {
       id: paramDto.id,
     });
     // console.log('>>>>>>>>>>>>>>>>>>>>>..', post);
-    if (post.length === 0) {
-      throw new NotFoundErr(`No post found for this id`);
-    }
+    // if (post.length === 0) {
+    //   throw new NotFoundErr(`No post found for this id`);
+    // }
     return this.mapper.mapArray(post, Post, ResponsePostDto);
   }
 

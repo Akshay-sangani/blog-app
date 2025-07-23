@@ -93,6 +93,8 @@ export class PostController {
     console.log('>>>>>>>>>>>>>>>>>>>', updatePostDto);
     return this.postService.update(paramDto, updatePostDto, request);
   }
+
+  
   @PermissionDecortaor(PermissionsEnum.DeleteSelf)
   @UseGuards(AuthGuard, PermissionGuard)
   @ApiOperation({
@@ -106,6 +108,8 @@ export class PostController {
   ): Promise<string> {
     return this.postService.remove(paramDto, request);
   }
+
+
 
   @PermissionDecortaor(PermissionsEnum.ReadAll)
   @ApiOperation({
