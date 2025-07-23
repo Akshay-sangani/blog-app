@@ -167,6 +167,10 @@ export class PostService {
     //       EFilterOperation.ILike,
     //     );
     // console.log(content);
+    if(content.length === 0){
+      throw new NotFoundErr('No Post Found!!!');
+
+    }
     const post = await this.PostRepo.searching({
       content: content,
       relations : ["author"]
