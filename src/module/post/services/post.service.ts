@@ -88,14 +88,15 @@ export class PostService {
     if (post.length === 0) {
       throw new NotFoundErr('No Post Found for Update');
     }
-    const user_id = post[0].author.id;
+    console.log(post);
+    // const user_id = post[0].author.id;
 
-    const email = request['user'].email;
-    const user = await this.userRepo.allAsync({ email: email });
-    if ((post.length > 0 && user_id === user[0].id) || request['ALL_GRANTED']) {
+    // const email = request['user'].email;
+    // const user = await this.userRepo.allAsync({ email: email });
+    if ((post.length > 0 ) || request['ALL_GRANTED']) {
       updatePostDto.id = Number(paramDto.id);
-      updatePostDto.author = user[0];
-      console.log(updatePostDto);
+      updatePostDto.author = post[0].author
+      // console.log(".................",updatePostDto);
       const updatedPost = await this.PostRepo.updateAsync(updatePostDto);
       return updatedPost;
     } else {

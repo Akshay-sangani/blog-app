@@ -38,7 +38,7 @@ export class UserRepository extends BaseRepo<
         ],
         order : {
           posts : {
-            createdAt : "DESC"
+            updateAt : "DESC"
           }
         }
       });

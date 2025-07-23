@@ -46,10 +46,9 @@ export class UserService {
   async getUserProfile(request: Request): Promise<ResponseUserDto[]> {
     const email = request['user'].email;
     const user = await this.UserRepo.getWithAsync({
-      relations: ['profile', 'posts', 'comments'],
+      relations: ['profile', 'posts', 'comments','role'],
       email: email,
     });
-
     // console.log(this.mapper.mapArrayAsync(user, User, ResponseUserDto));
     if (user.length === 0) {
       throw new NotFoundErr(`User Not Found!!!`);

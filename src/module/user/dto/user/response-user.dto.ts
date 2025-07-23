@@ -20,7 +20,6 @@ export class ResponseUserDto {
   lastName: string;
 
 
-
   @AutoMap()
   @Exclude()
   password: string;
@@ -51,6 +50,6 @@ export class ResponseUserDto {
   updateAt: Date;
 
   @AutoMap()
-  @Exclude()
+  // @Exclude()
   role : Roles
 }

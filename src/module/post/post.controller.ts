@@ -78,7 +78,7 @@ export class PostController {
     return this.postService.findOne(paramDto);
   }
   
-  @PermissionDecortaor(PermissionsEnum.WriteSelf)
+  @PermissionDecortaor(PermissionsEnum.WriteSelf,PermissionsEnum.WriteAll)
   @UseGuards(AuthGuard, PermissionGuard)
   @ApiOperation({
     summary: 'Update Post By id',
