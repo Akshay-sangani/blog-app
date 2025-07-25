@@ -14,6 +14,7 @@ import { paramDto } from 'src/common/dto/params.dto';
 import { feildDto } from 'src/common/dto/feildDto.dto';
 import { EFilterOperation } from 'src/common';
 import { RoleRepository } from 'src/module/auth/repository/roles.reposiory';
+import { Roles } from 'src/module/auth/enitites/roles.entity';
 
 @Injectable()
 export class UserService {
@@ -85,7 +86,10 @@ export class UserService {
   }
 
   async getAllUser(): Promise<ResponseUserDto[]> {
-    const users = await this.UserRepo.allAsync();
+    const filter =await this.UserRepo.FilterGenerate("role","User",EFilterOperation.Equals);
+    console.log("filterrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",filter);
+    //@ts-ignore
+    const users = await this.UserRepo.allAsync({role : filter});
     if (users.length > 0) {
       return users;
     }
@@ -122,4 +126,18 @@ export class UserService {
     }
     throw new NotFoundErr(`User not Found with this ${feildDto.feild}!!!`);
   }
+
+
+    async removeById(paramDto : paramDto): Promise<string> {
+      console.log(typeof paramDto.id);
+    const user = await this.UserRepo.existAsync({ id : Number(paramDto.id )});
+    console.log("userrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",user);
+    if (!user) {
+      throw new NotFoundErr(`User not found!!!`);
+    } else {
+      const deletedUser = await this.UserRepo.deleteAsync(paramDto.id);
+    }
+    return `Your account has been deleted!!! Please Register again`;
+  }
+
 }

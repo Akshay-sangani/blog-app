@@ -138,4 +138,19 @@ export class UserController {
     return this.ProfileService.updateUserProfile(request, updateUserProfileDto);
   }
 
+
+
+
+  @ApiOperation({
+    summary: 'Delete User Pofile',
+    description: 'This api for delete loggedIn user Data',
+  })
+  @PermissionDecortaor(PermissionsEnum.DeleteAll)
+  @UseGuards(AuthGuard,PermissionGuard)
+  @Delete('/DeleteUser/remove/:id')
+  async removeUserById(@Param() paramDto : paramDto): Promise<string> {
+    console.log("...........................................................");
+    return this.userService.removeById(paramDto);
+  }
+
 }
