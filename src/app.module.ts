@@ -13,6 +13,7 @@ import { classes } from '@automapper/classes';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
+import { SocketModule } from './module/socket/socket.module';
 
 @Module({
   imports: [
@@ -50,6 +51,8 @@ import { LoggerModule } from 'nestjs-pino';
         transport : process.env.PORT !== 'development' ? {target : 'pino-pretty'} : undefined
       }
     }),
+
+    SocketModule,
   ],
 
   controllers: [AppController],

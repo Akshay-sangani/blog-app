@@ -45,8 +45,8 @@ export class PermissionGuard implements CanActivate {
       return true;
     }
 
-    console.log(permissionArray);
-    console.log(Requiredpermissions);
+   // console.log(permissionArray);
+   // console.log(Requiredpermissions);
     // const x = Requiredpermissions.some((permission : string) =>{
     //   console.log(permission)
     //   permissionArray.includes(permission)
@@ -59,7 +59,7 @@ export class PermissionGuard implements CanActivate {
           return flag;
       }
     });
-    console.log("***********************************object",flag);
+   // console.log("***********************************object",flag);
     return flag;
   }
 }

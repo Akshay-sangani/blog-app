@@ -25,7 +25,7 @@ export abstract class BaseRepo<TEntity, T, TKey, TPageableFilter = PageableFilte
   public async createAsync(entry: T): Promise<T> {
     try {
       const entity = this.mapToEntity(entry);
-      console.log(entity)
+     // console.log(entity)
       await this.internalRepo.save(entity);
       return this.mapToModel(entity);
     } catch (ex) {

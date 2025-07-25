@@ -15,6 +15,7 @@ import { feildDto } from 'src/common/dto/feildDto.dto';
 import { EFilterOperation } from 'src/common';
 import { RoleRepository } from 'src/module/auth/repository/roles.reposiory';
 import { Roles } from 'src/module/auth/enitites/roles.entity';
+import { EOrder } from 'src/common/filtering';
 
 @Injectable()
 export class UserService {
@@ -87,9 +88,8 @@ export class UserService {
 
   async getAllUser(): Promise<ResponseUserDto[]> {
     const filter =await this.UserRepo.FilterGenerate("role","User",EFilterOperation.Equals);
-    console.log("filterrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",filter);
     //@ts-ignore
-    const users = await this.UserRepo.allAsync({role : filter});
+    const users = await this.UserRepo.allAsync({role : filter , $orderBy:'updateAt',$order : EOrder.Desc });
     if (users.length > 0) {
       return users;
     }

@@ -8,7 +8,7 @@ export class RpcGlobalExceptionInterceptor implements NestInterceptor {
   public intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       catchError((error) => {
-        console.log("herer");
+     //   console.log("herer");
         if (error.isRpc && !(error instanceof HttpException)) {
           throw new HttpException(error.payload, error.status);
         }

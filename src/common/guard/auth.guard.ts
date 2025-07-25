@@ -15,7 +15,7 @@ export class AuthGuard implements CanActivate {
     try {
       const request = context.switchToHttp().getRequest();
       const token = this.extractTokenFromHeader(request);
-      console.log(token);
+    //  console.log(token);
       if (!token) {
         throw new UnauthorizedException();
       }
@@ -23,7 +23,7 @@ export class AuthGuard implements CanActivate {
         secret: process.env.JWT_SECRET,
       });
       request['user'] = payload;          
-      console.log("..............",request.user);
+    //  console.log("..............",request.user);
       return true;
     } catch {
       throw new UnauthorizedException();

@@ -8,7 +8,7 @@ import { RoleRepository } from './repository/roles.reposiory';
 export interface LoginResponse {
   message: string;
   token?: string;
-  status: boolean;
+  status: number;
 }
 
 @Injectable()
@@ -25,8 +25,8 @@ export class AuthService {
       email: LoginDto.email,
     });
     if (existingUser.length === 0) {
-      throw new NotFoundErr('Email or password is Wrong');
-      // return { message: 'User Does not Exist', status: false };
+      // throw new NotFoundErr('User Does Not Registered yet!!!');
+      return { message: 'User Does not Exist', status: 404 };
     } else {
       const password = LoginDto.password;
       const match = await bcrypt.compare(password, existingUser[0].password);
@@ -37,10 +37,10 @@ export class AuthService {
           role: existingUser[0].role.id,
         });
         console.log(token);
-        return { status: true, message: 'Login Successfull', token: token };
+        return { status: 200, message: 'Login Successfull', token: token };
       } else {
-        // return { message: 'User Does not Exist', status: false };
-        throw new NotFoundErr('Email or password is Wrong');
+        return { message: 'Invalid Email or Password', status: 404 };
+        // throw new NotFoundErr('Email or password is Wrong');
       }
     }
   }
