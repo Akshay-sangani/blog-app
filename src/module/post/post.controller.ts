@@ -52,7 +52,7 @@ export class PostController {
     @Req() reuqest: Request,
     @Body() createPostDto: RequestPostDto,
   ): Promise<ResponsePostDto> {
-    return this.postService.create(reuqest, createPostDto);
+    return this.postService.create(reuqest['user'], createPostDto);
   }
 
   // @PermissionDecortaor(PermissionsEnum.ReadAll)
@@ -91,7 +91,7 @@ export class PostController {
     @Req() request: Request,
   ): Promise<ResponsePostDto> {
     console.log('>>>>>>>>>>>>>>>>>>>', updatePostDto);
-    return this.postService.update(paramDto, updatePostDto, request);
+    return this.postService.update(paramDto, updatePostDto, request['ALL_GRANTED']);
   }
 
   
@@ -106,7 +106,11 @@ export class PostController {
     @Param() paramDto: paramDto,
     @Req() request: Request,
   ): Promise<string> {
-    return this.postService.remove(paramDto, request);
+    const obj = {
+      user : request['user'],
+      permission : request['ALL_GRANTED']
+    }
+    return this.postService.remove(paramDto, obj);
   }
 
 
@@ -146,7 +150,7 @@ export class PostController {
     @Param() paramDto: paramDto,
   ): Promise<ResponseCommentDto> {
     console.log("shfjhssfsfsssfs",createComment);
-    return this.commentService.create(reuqest, createComment, paramDto);
+    return this.commentService.create(reuqest['user'], createComment, paramDto);
   }
 
 
@@ -174,7 +178,7 @@ export class PostController {
     @Req() request: Request,
     @Param() paramDto: paramDto,
   ): Promise<string> {
-    return this.likeService.likePost(request, paramDto);
+    return this.likeService.likePost(request['user'], paramDto);
   }
   // @UseGuards(AuthGuard)
   @PermissionDecortaor(PermissionsEnum.ReadAll)

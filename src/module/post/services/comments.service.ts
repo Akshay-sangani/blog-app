@@ -18,11 +18,11 @@ export class CommentService {
   ) {}
 
   async create(
-    request: Request,
+    payload : {email : string},
     createComment: RequestCommentDto,
     paramDto: paramDto,
   ) : Promise<ResponseCommentDto> {
-    const email = request['user'].email;
+    const email = payload.email;
     const user = await this.userRepo.allAsync({ email: email });
     const post = await this.postRepo.getAsync(paramDto.id);
     if(post){

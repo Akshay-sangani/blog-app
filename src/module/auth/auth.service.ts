@@ -4,7 +4,6 @@ import { NotFoundErr } from 'src/common/exceptions/notFoundException.exception';
 import { UserRepository } from '../user/repository/user.repository';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
-import { RoleRepository } from './repository/roles.reposiory';
 export interface LoginResponse {
   message: string;
   token?: string;
@@ -36,7 +35,6 @@ export class AuthService {
           email: LoginDto.email,
           role: existingUser[0].role.id,
         });
-        console.log(token);
         return { status: 200, message: 'Login Successfull', token: token };
       } else {
         return { message: 'Invalid Email or Password', status: 404 };

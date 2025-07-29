@@ -15,8 +15,8 @@ export class LikeService{
     readonly postRepo: PostRepositry,
   ) {}
 
- async likePost(request: Request, paramDto: paramDto) : Promise<string> {
-    const email = request['user'].email;
+ async likePost(payload : {email : string}, paramDto: paramDto) : Promise<string> {
+    const email = payload.email;
     const user = await this.userRepo.getWithAsync({
       email: email,
       relations: ['likedPosts'],

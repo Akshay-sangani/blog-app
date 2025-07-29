@@ -59,7 +59,7 @@ export class UserController {
   @UseGuards(AuthGuard,PermissionGuard)
   @Get('/profile')
   async getUserProfile(@Req() request: Request): Promise<ResponseUserDto[]> {
-    return this.userService.getUserProfile(request);
+    return this.userService.getUserProfile(request['user']);
   }
 
   @ApiOperation({
@@ -70,7 +70,7 @@ export class UserController {
   @UseGuards(AuthGuard,PermissionGuard)
   @Delete('/removeUser')
   async remove(@Req() request: Request): Promise<string> {
-    return this.userService.remove(request);
+    return this.userService.remove(request['user']);
   }
 
   @ApiOperation({
@@ -84,7 +84,7 @@ export class UserController {
     @Req() request: Request,
     @Body() UpdateUserDto: UpdateUserDto,
   ): Promise<ResponseUserDto> {
-    return this.userService.updateUser(request, UpdateUserDto);
+    return this.userService.updateUser(request['user'], UpdateUserDto);
   }
 
   @ApiOperation({
@@ -135,15 +135,15 @@ export class UserController {
     @Req() request: Request,
     @Body() updateUserProfileDto: updateUserProfileDto,
   ): Promise<ResponseUserProfile> {
-    return this.ProfileService.updateUserProfile(request, updateUserProfileDto);
+    return this.ProfileService.updateUserProfile(request['user'], updateUserProfileDto);
   }
 
 
 
 
   @ApiOperation({
-    summary: 'Delete User Pofile',
-    description: 'This api for delete loggedIn user Data',
+    summary: 'Delete User Pofile by Admin',
+    description: 'This api for remove user ',
   })
   @PermissionDecortaor(PermissionsEnum.DeleteAll)
   @UseGuards(AuthGuard,PermissionGuard)

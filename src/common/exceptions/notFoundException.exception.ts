@@ -7,7 +7,8 @@ export class NotFoundErr extends RpcBaseException {
   ) {
     super(
         objectOrError,
-        HttpStatus.NOT_FOUND,
+        HttpStatus.NOT_FOUND
+        
     );
   }
 }

@@ -27,10 +27,10 @@ export class PostService {
   ) {}
 
   async create(
-    request: Request,
+    payload : {email: string},
     createPostDto: RequestPostDto,
   ): Promise<ResponsePostDto> {
-    const email = request['user'].email;
+    const email =payload.email;
     const user = await this.userRepo.allAsync({ email: email });
     if (user.length > 0) {
       createPostDto.author = user[0];
@@ -79,7 +79,7 @@ export class PostService {
   async update(
     paramDto: paramDto,
     updatePostDto: UpdatePostDto,
-    request: Request,
+    payload : {ALL_GRANTED:boolean}
   ): Promise<ResponsePostDto> {
     const post = await this.PostRepo.getWithAsync({
       relations: ['author'],
@@ -93,7 +93,7 @@ export class PostService {
 
     // const email = request['user'].email;
     // const user = await this.userRepo.allAsync({ email: email });
-    if ((post.length > 0 ) || request['ALL_GRANTED']) {
+    if ((post.length > 0 ) || payload.ALL_GRANTED) {
       updatePostDto.id = Number(paramDto.id);
       updatePostDto.author = post[0].author
       // console.log(".................",updatePostDto);
@@ -104,12 +104,12 @@ export class PostService {
     }
   }
 
-  async remove(paramDto: paramDto, request: Request): Promise<string> {
+  async remove(paramDto: paramDto, payload: { user:{email : string} ; permission: {ALL_GRANTED : boolean}; } ): Promise<string> {
     const post = await this.PostRepo.getWithAsync({
       relations: ['author'],
       id: paramDto.id,
     });
-    const email = request['user'].email;
+    const email = payload.user.email;
     console.log(post);
     if (post.length == 0) {
       console.log('jkhaud fguyeggsuuo uougugugyugy   ');
@@ -117,7 +117,7 @@ export class PostService {
     }
     const user = await this.userRepo.allAsync({ email: email });
     const user_id = post[0].author.id;
-    if (user_id === user[0].id || request['ALL_GRANTED']) {
+    if (user_id === user[0].id || payload.permission.ALL_GRANTED) {
       if (post) {
         const deletePost = await this.PostRepo.deleteAsync(paramDto.id);
         return `This action removes a #${paramDto.id} post`;

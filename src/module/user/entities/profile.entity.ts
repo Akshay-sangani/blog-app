@@ -33,7 +33,7 @@ export class Profile {
   @AutoMap()
   phone: number;
 
-  @OneToOne(() => User, (user) => user.profile ,    { onDelete: 'CASCADE'})
+  @OneToOne(() => User, (user) => user.profile ,{ onDelete: 'CASCADE'})
   @JoinColumn()
   @AutoMap()
   user: User;

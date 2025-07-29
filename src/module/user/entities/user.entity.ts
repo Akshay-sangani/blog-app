@@ -46,16 +46,17 @@ export class User {
   @OneToOne(() => Profile, (profile) => profile.user, {
     cascade: true,
     eager: true,
-    onDelete : 'CASCADE'
   })
   @AutoMap()
   profile: Profile;
 
-  @OneToMany(() => Post, (post) => post.author)
+  @OneToMany(() => Post, (post) => post.author  , {
+    cascade : true
+  })
   @AutoMap()
   posts: Post[];
 
-  @OneToMany(() => Comment, (comment) => comment.user)
+  @OneToMany(() => Comment, (comment) => comment.user , {cascade : true})
   @AutoMap()
   comments: Comment[];
 

@@ -20,11 +20,11 @@ export class Comment {
   @AutoMap()
   content: string;
 
-  @ManyToOne(() => User, (user) => user.comments)
+  @ManyToOne(() => User, (user) => user.comments  , {onDelete : 'CASCADE'})
   @AutoMap()
   user: User;
 
-  @ManyToOne(() => Post, (post) => post.comments)
+  @ManyToOne(() => Post, (post) => post.comments , {onDelete : 'CASCADE'})
   @AutoMap()
   post: Post;
 

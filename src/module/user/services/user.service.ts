@@ -45,8 +45,8 @@ export class UserService {
     return user;
   }
 
-  async getUserProfile(request: Request): Promise<ResponseUserDto[]> {
-    const email = request['user'].email;
+  async getUserProfile(payload: { email: string; } ): Promise<ResponseUserDto[]> {
+    const email = payload.email;
     const user = await this.UserRepo.getWithAsync({
       relations: ['profile', 'posts', 'comments','role'],
       email: email,
@@ -58,8 +58,8 @@ export class UserService {
     return this.mapper.mapArrayAsync(user, User, ResponseUserDto);
   }
 
-  async remove(request: Request): Promise<string> {
-    const email = request['user'].email;
+  async remove(payload : {email : string}): Promise<string> {
+    const email = payload.email;
     const user = await this.UserRepo.allAsync({ email: email });
     if (user.length > 0) {
       const deletedUser = await this.UserRepo.deleteAsync(user[0].id);
@@ -70,10 +70,10 @@ export class UserService {
   }
 
   async updateUser(
-    request: Request,
+    payload : {email :string},
     UpdateUserDto: UpdateUserDto,
   ): Promise<ResponseUserDto> {
-    const email = request['user'].email;
+    const email = payload.email;
     const user = await this.UserRepo.allAsync({ email: email });
     const hashPassword = await bcrypt.hash(UpdateUserDto.password, 10);
 

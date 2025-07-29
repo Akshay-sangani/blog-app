@@ -26,7 +26,7 @@ export class Post {
   @AutoMap()
   content: string;
 
-  @ManyToOne(() => User, user => user.posts, {eager : true})
+  @ManyToOne(() => User, user => user.posts, {eager : true , onDelete : 'CASCADE'})
   @AutoMap()
   author: User;
 

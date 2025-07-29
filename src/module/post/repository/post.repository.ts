@@ -3,7 +3,7 @@ import { BaseRepo, DbException, EFilterOperation } from 'src/common';
 import { Post } from '../entities/post.entity';
 import { ResponsePostDto } from '../dto/post/response-post';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository, ILike } from 'typeorm';
+import { Like, Repository, ILike, IsNull, Not } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
@@ -58,7 +58,7 @@ export class PostRepositry extends BaseRepo<Post, ResponsePostDto, Post['id']> {
       const es = await this.internalRepo.find({
         relations: filterObj.relations,
         where: [
-          { id: filterObj.id },
+          //  { id: filterObj.id  , author : Not(IsNull)},
           { content: ILike(`%${filterObj.content}%`) },
           { title: ILike(`%${filterObj.content}%`) },
           { author: { firstName: ILike(`%${filterObj.content}%`) } },

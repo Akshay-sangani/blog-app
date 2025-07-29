@@ -18,11 +18,11 @@ export class ProfileService {
   ) {}
 
   async updateUserProfile(
-    request: Request,
+    payload: {email : string},
     updateUserProfileDto: updateUserProfileDto,
   ): Promise<ResponseUserProfile> {
     
-    const email = request['user'].email;
+    const email = payload.email;
     const user = await this.UserRepo.allAsync({ email: email });
     const profile = await this.ProfileRepository.allAsync({ user: user[0] });
 
