@@ -29,12 +29,18 @@ export class updateUserProfileDto {
   @AutoMap()
   @ApiProperty()
   @IsNotEmpty()
-  @IsNumber()
+  // @IsNumber()
   phone: number;
 
   @AutoMap()
-  user: UpdateUserDto;
+  Profile_url: string;
 
+  @ApiProperty({ type: 'string', format: 'binary', required: true })
+  file? : Express.Multer.File
+  
+
+  @AutoMap()
+  user: UpdateUserDto;
 
   createdAt: Date;
   deletedAt: Date;

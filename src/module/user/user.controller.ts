@@ -9,6 +9,7 @@ import {
   Put,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -16,7 +17,14 @@ import { ResponseUserDto } from './dto/user/response-user.dto';
 import { UserService } from './services/user.service';
 import { ProfileService } from './services/profile.service';
 import { RequestUserDto } from './dto/user/request-user.dto';
-import { ApiBearerAuth, ApiExcludeEndpoint, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiExcludeEndpoint,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from 'src/common/guard/auth.guard';
 import { Request } from 'express';
 import { UpdateUserDto } from './dto/user/update-user.dto';
@@ -27,16 +35,19 @@ import { feildDto } from 'src/common/dto/feildDto.dto';
 import { PermissionDecortaor } from 'src/common/decoratores/permission.decortaores';
 import { PermissionsEnum } from 'src/common/enums/permission.dto';
 import { PermissionGuard } from 'src/common/guard/permission.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { CloudinaryResponse } from '../cloudinary/cloudinary-response';
 
 @ApiTags('User Apis')
 @ApiBearerAuth()
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
-
 export class UserController {
   constructor(
     private readonly userService: UserService,
     readonly ProfileService: ProfileService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   @ApiOperation({
@@ -56,7 +67,7 @@ export class UserController {
       'This api returns User data with comments and posts done by User',
   })
   @PermissionDecortaor(PermissionsEnum.ReadAll)
-  @UseGuards(AuthGuard,PermissionGuard)
+  @UseGuards(AuthGuard, PermissionGuard)
   @Get('/profile')
   async getUserProfile(@Req() request: Request): Promise<ResponseUserDto[]> {
     return this.userService.getUserProfile(request['user']);
@@ -67,7 +78,7 @@ export class UserController {
     description: 'This api for delete loggedIn user Data',
   })
   @PermissionDecortaor(PermissionsEnum.DeleteSelf)
-  @UseGuards(AuthGuard,PermissionGuard)
+  @UseGuards(AuthGuard, PermissionGuard)
   @Delete('/removeUser')
   async remove(@Req() request: Request): Promise<string> {
     return this.userService.remove(request['user']);
@@ -78,7 +89,7 @@ export class UserController {
     description: 'This api for updating User Data',
   })
   @PermissionDecortaor(PermissionsEnum.WriteSelf)
-  @UseGuards(AuthGuard,PermissionGuard)
+  @UseGuards(AuthGuard, PermissionGuard)
   @Put('/update')
   async updateUser(
     @Req() request: Request,
@@ -103,7 +114,7 @@ export class UserController {
     description: 'This api for searching user by id ',
   })
   @PermissionDecortaor(PermissionsEnum.ReadAll)
-  @UseGuards(AuthGuard,PermissionGuard)
+  @UseGuards(AuthGuard, PermissionGuard)
   @Get('byId/:id')
   async getUserById(@Param() paramDto: paramDto): Promise<ResponseUserDto[]> {
     return this.userService.getUserById(paramDto);
@@ -115,10 +126,10 @@ export class UserController {
       'This is Search filter for feild like email , firstname and lastname',
   })
   @PermissionDecortaor(PermissionsEnum.ReadAll)
-  @UseGuards(AuthGuard,PermissionGuard)
+  @UseGuards(AuthGuard, PermissionGuard)
   @Get('search/')
   async NameFilter(
-    @Query() feildDto : feildDto,
+    @Query() feildDto: feildDto,
     @Query('value') value: string,
   ): Promise<ResponseUserDto[]> {
     return this.userService.findByField(feildDto, value);
@@ -129,28 +140,58 @@ export class UserController {
     description: 'This api for Updating loggedin User Profile',
   })
   @PermissionDecortaor(PermissionsEnum.WriteSelf)
-  @UseGuards(AuthGuard,PermissionGuard)
+  @UseGuards(AuthGuard, PermissionGuard)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+   type : updateUserProfileDto
+  })
+  @UseInterceptors(FileInterceptor('file'))
   @Put('/profile/update')
   async updateUserProfile(
     @Req() request: Request,
+    @UploadedFile() file: Express.Multer.File,
     @Body() updateUserProfileDto: updateUserProfileDto,
   ): Promise<ResponseUserProfile> {
-    return this.ProfileService.updateUserProfile(request['user'], updateUserProfileDto);
+    console.log(file);
+    let url: string =  null;
+    if(file){
+        const  uploadFile = await this.cloudinaryService.uploadFile(file);
+        url = uploadFile.secure_url; 
+    }
+    return this.ProfileService.updateUserProfile(
+      request['user'],
+      updateUserProfileDto,
+      url
+    );
   }
-
-
-
 
   @ApiOperation({
     summary: 'Delete User Pofile by Admin',
     description: 'This api for remove user ',
   })
   @PermissionDecortaor(PermissionsEnum.DeleteAll)
-  @UseGuards(AuthGuard,PermissionGuard)
+  @UseGuards(AuthGuard, PermissionGuard)
   @Delete('/DeleteUser/remove/:id')
-  async removeUserById(@Param() paramDto : paramDto): Promise<string> {
-    console.log("...........................................................");
+  async removeUserById(@Param() paramDto: paramDto): Promise<string> {
+    console.log('...........................................................');
     return this.userService.removeById(paramDto);
   }
 
+  @Post('upload')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  uploadImage(@UploadedFile() file: Express.Multer.File) {
+    return this.cloudinaryService.uploadFile(file);
+  }
 }

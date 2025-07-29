@@ -29,6 +29,8 @@ export class ResponseUserProfile {
   @AutoMap()
   id :number
 
+  @AutoMap()
+  Profile_url: string;
   createdAt:Date
   deletedAt:Date
    updateAt:Date

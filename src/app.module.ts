@@ -14,6 +14,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { SocketModule } from './module/socket/socket.module';
+import { CloudinaryModule } from './module/cloudinary/cloudinary.module';
+
 
 @Module({
   imports: [
@@ -53,6 +55,8 @@ import { SocketModule } from './module/socket/socket.module';
     }),
 
     SocketModule,
+
+    CloudinaryModule,
   ],
 
   controllers: [AppController],
@@ -63,6 +67,7 @@ import { SocketModule } from './module/socket/socket.module';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+
   ],
 })
 

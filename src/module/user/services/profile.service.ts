@@ -7,6 +7,7 @@ import { UserRepository } from '../repository/user.repository';
 import { updateUserProfileDto } from '../dto/userProfile/update-profile.dto';
 import { ProfileRepository } from '../repository/profile.repository';
 import { Request } from 'express';
+import { CloudinaryService } from 'src/module/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProfileService {
@@ -15,13 +16,15 @@ export class ProfileService {
     private readonly UserRepo: UserRepository,
     private readonly ProfileRepository: ProfileRepository,
     @InjectMapper() readonly mapper: Mapper,
+        private readonly cloudinaryService: CloudinaryService,
+    
   ) {}
 
   async updateUserProfile(
     payload: {email : string},
     updateUserProfileDto: updateUserProfileDto,
+    url : string | null
   ): Promise<ResponseUserProfile> {
-    
     const email = payload.email;
     const user = await this.UserRepo.allAsync({ email: email });
     const profile = await this.ProfileRepository.allAsync({ user: user[0] });
@@ -30,6 +33,7 @@ export class ProfileService {
       console.log(profile);
       if (user.length > 0) {
         updateUserProfileDto.id = profile[0].id;
+        updateUserProfileDto.Profile_url = url;
         updateUserProfileDto.user = user[0];
         console.log('object');
         const userProfile =

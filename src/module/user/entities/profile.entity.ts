@@ -38,6 +38,10 @@ export class Profile {
   @AutoMap()
   user: User;
 
+  @Column({nullable : true , default : null})
+  @AutoMap()
+  Profile_url : string
+
   @CreateDateColumn()
   @AutoMap()
   createdAt: Date;
