@@ -97,12 +97,11 @@ export class UserService {
   }
 
   async getUserById(paramDto: paramDto) {
-    console.log(paramDto);
     const user = await this.UserRepo.getWithAsync({
       relations : ['profile' , 'posts','comments'],
       id : paramDto.id
     });
-    if (!user) {
+    if (user.length === 0) {
       throw new NotFoundErr(`User not Found!!!`);
     }
     return user;
