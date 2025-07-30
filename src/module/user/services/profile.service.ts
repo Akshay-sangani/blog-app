@@ -25,6 +25,7 @@ export class ProfileService {
     updateUserProfileDto: updateUserProfileDto,
     url : string | null
   ): Promise<ResponseUserProfile> {
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",url);
     const email = payload.email;
     const user = await this.UserRepo.allAsync({ email: email });
     const profile = await this.ProfileRepository.allAsync({ user: user[0] });
@@ -36,7 +37,7 @@ export class ProfileService {
         if(url === null){
           updateUserProfileDto.Profile_url = profile[0].Profile_url;
         }else{
-          updateUserProfileDto.Profile_url = profile[0].Profile_url;
+          updateUserProfileDto.Profile_url = url;
 
         }
         updateUserProfileDto.user = user[0];
