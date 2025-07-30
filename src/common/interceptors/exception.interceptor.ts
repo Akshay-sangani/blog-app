@@ -1,7 +1,7 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler, HttpException } from "@nestjs/common";
 import { Observable, catchError } from "rxjs";
 
-import { RpcBaseException } from "./exceptions";
+import { RpcBaseException } from "../exceptions";
 
 @Injectable()
 export class RpcGlobalExceptionInterceptor implements NestInterceptor {

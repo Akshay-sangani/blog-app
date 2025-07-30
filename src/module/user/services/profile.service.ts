@@ -33,7 +33,12 @@ export class ProfileService {
       console.log(profile);
       if (user.length > 0) {
         updateUserProfileDto.id = profile[0].id;
-        updateUserProfileDto.Profile_url = url;
+        if(url === null){
+          updateUserProfileDto.Profile_url = profile[0].Profile_url;
+        }else{
+          updateUserProfileDto.Profile_url = profile[0].Profile_url;
+
+        }
         updateUserProfileDto.user = user[0];
         console.log('object');
         const userProfile =

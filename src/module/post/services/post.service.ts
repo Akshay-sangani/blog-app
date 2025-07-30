@@ -13,7 +13,7 @@ import { paramDto } from 'src/common/dto/params.dto';
 import { UpdatePostDto } from '../dto/post/update-post.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { EOrder, IPageable } from 'src/common/filtering';
-import { EFilterOperation } from 'src/common';
+import { MailService } from 'src/module/mail/mail-service.service';
 export interface allPostRespones {
   post: ResponsePostDto;
   likeCount: number;
@@ -24,6 +24,7 @@ export class PostService {
     readonly PostRepo: PostRepositry,
     readonly userRepo: UserRepository,
     @InjectMapper() readonly mapper: Mapper,
+    readonly mailService : MailService
   ) {}
 
   async create(
@@ -35,6 +36,7 @@ export class PostService {
     if (user.length > 0) {
       createPostDto.author = user[0];
       const post = await this.PostRepo.createAsync(createPostDto);
+      const mail = await this.mailService.send({to : email,subject : "Post Creation",message :"Your Post has been published..."})
       return post;
     }
     throw new RpcInternalServerErrorException(`Error in createing`);

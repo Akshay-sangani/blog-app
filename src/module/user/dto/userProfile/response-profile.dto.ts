@@ -3,9 +3,9 @@ import { Entity } from 'typeorm';
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { User } from '../../entities/user.entity';
+import { ResponseUserDto } from '../user/response-user.dto';
 @Entity()
-export class ResponseUserProfile {
+export class ResponseUserProfile{
   @AutoMap()
   @ApiProperty()
   userName: string;
@@ -24,7 +24,7 @@ export class ResponseUserProfile {
 
   @AutoMap()
   @ApiProperty()
-  user: User;
+  user: ResponseUserDto;
 
   @AutoMap()
   id :number

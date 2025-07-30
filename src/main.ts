@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { RpcGlobalExceptionInterceptor } from './common/exception.interceptor';
+import { RpcGlobalExceptionInterceptor } from './common/interceptors/exception.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import * as session from 'express-session';
 

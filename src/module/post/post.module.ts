@@ -11,9 +11,10 @@ import { UserModule } from '../user/user.module';
 import { CommentService } from './services/comments.service';
 import { LikeService } from './services/like.service';
 import { AuthModule } from '../auth/auth.module';
+import { MailModuleModule } from '../mail/mail-module.module';
 
 @Module({
-  imports  : [TypeOrmModule.forFeature([Post,Comment]), UserModule,AuthModule],
+  imports  : [TypeOrmModule.forFeature([Post,Comment]), UserModule,AuthModule, MailModuleModule],
   controllers: [PostController ],
   providers: [PostService,CommentService ,PostRepositry ,CommentRepositry,PostProfile,LikeService],
 })

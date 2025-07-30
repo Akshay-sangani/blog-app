@@ -15,13 +15,15 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { SocketModule } from './module/socket/socket.module';
 import { CloudinaryModule } from './module/cloudinary/cloudinary.module';
-
+import { MailModuleModule } from './module/mail/mail-module.module';
+import { MailService } from './module/mail/mail-service.service';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
     PostModule,
+    MailModuleModule,
 
     ConfigModule.forRoot(),
 
@@ -57,6 +59,8 @@ import { CloudinaryModule } from './module/cloudinary/cloudinary.module';
     SocketModule,
 
     CloudinaryModule,
+
+    MailModuleModule,
   ],
 
   controllers: [AppController],
@@ -67,6 +71,7 @@ import { CloudinaryModule } from './module/cloudinary/cloudinary.module';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+
 
   ],
 })
