@@ -16,12 +16,17 @@ import { EFilterOperation } from 'src/common';
 import { RoleRepository } from 'src/module/auth/repository/roles.reposiory';
 import { Roles } from 'src/module/auth/enitites/roles.entity';
 import { EOrder } from 'src/common/filtering';
+import { MailService } from 'src/module/mail/mail-service.service';
+import { EmailDto } from '../dto/user/email-user.dto';
+import * as dotenv from "dotenv"
+dotenv.config()
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly UserRepo: UserRepository,
     private readonly RoleRepo: RoleRepository,
+    private readonly mailService: MailService,
     @InjectMapper() readonly mapper: Mapper,
   ) {}
 
@@ -75,11 +80,11 @@ export class UserService {
   ): Promise<ResponseUserDto> {
     const email = payload.email;
     const user = await this.UserRepo.allAsync({ email: email });
-    const hashPassword = await bcrypt.hash(UpdateUserDto.password, 10);
+    // const hashPassword = await bcrypt.hash(UpdateUserDto.password, 10);
 
     if (user.length > 0) {
       UpdateUserDto.id = user[0].id;
-      UpdateUserDto.password = hashPassword;
+      UpdateUserDto.password = user[0].password;
       const userProfile = await this.UserRepo.updateAsync(UpdateUserDto);
       return userProfile;
     }
@@ -137,6 +142,29 @@ export class UserService {
       const deletedUser = await this.UserRepo.deleteAsync(paramDto.id);
     }
     return `Your account has been deleted!!! Please Register again`;
+  }
+
+  async sendMail(EmailDto : EmailDto){
+    const user = await this.UserRepo.existAsync({email : EmailDto.email});
+    if(!user){
+      throw new NotFoundErr('Email is Wrong Try again');
+    }else{
+      const link = process.env.FRONTENDURL
+
+      this.mailService.send({to : EmailDto.email , subject : 'Reset Password' , message : 'Click here to reset Password' , link : `${link}/reset-password/?email=${EmailDto.email}`})
+    }
+    return "mail sended";
+  }
+
+  async resetPassowrd(EmailDto : EmailDto){
+    const user = await this.UserRepo.allAsync({email : EmailDto.email});
+    if(!user){
+      throw new NotFoundErr('User Not Found');
+    }
+      user[0].password = await bcrypt.hash(EmailDto.password,10);
+      const updatePass = await this.UserRepo.createAsync(user[0])
+    
+    return updatePass;
   }
 
 }

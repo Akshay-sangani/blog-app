@@ -7,10 +7,11 @@ interface ISendMail {
   to: string;
   subject: string;
   message: string;
+  link? : string
 }
 @Injectable()
 export class MailService {
-  async send({ to, subject, message }: ISendMail) {
+  async send({ to, subject, message, link }: ISendMail) {
     var transporter = nodemailer.createTransport({
       service: 'gmail',
       // host: 'smtp.dreamhost.com',
@@ -27,7 +28,7 @@ export class MailService {
       <h1 style="font-size: 32px; color: #2e8b57; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);">Blog</h1> 
       </div>
       <p style="font-size: 18px; color: #333; text-align:center; margin:10px 0; line-height:1.6;">${message}</p>
-      <a href="akshay-sangani-blog-app.netlify.app" style="font-size: 20px; color: #1e90ff; align-self:center; text-align:center; margin-top:20px; padding:12px 25px; border:2px solid #1e90ff; border-radius:8px; text-decoration:none; background-color:white; transition: all 0.3s ease;">Click here to Continue</a>
+      <a href=${link} style="font-size: 20px; color: #1e90ff; align-self:center; text-align:center; margin-top:20px; padding:12px 25px; border:2px solid #1e90ff; border-radius:8px; text-decoration:none; background-color:white; transition: all 0.3s ease;">Click here to Continue</a>
 </div>`
 
     var mailOptions = {

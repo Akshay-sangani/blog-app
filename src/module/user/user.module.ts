@@ -10,9 +10,10 @@ import { Profile } from './entities/profile.entity';
 import { ProfileService } from './services/profile.service';
 import { AuthModule } from '../auth/auth.module';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+import { MailModuleModule } from '../mail/mail-module.module';
 
 @Module({
-  imports : [AuthModule,TypeOrmModule.forFeature([User,Profile]) , CloudinaryModule],
+  imports : [AuthModule,TypeOrmModule.forFeature([User,Profile]) , CloudinaryModule , MailModuleModule],
   controllers: [UserController],
   providers: [UserService, UserRepository , UserProfile , ProfileRepository, ProfileService],
   exports: [UserRepository ,ProfileRepository, UserProfile,ProfileService],

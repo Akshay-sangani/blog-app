@@ -16,7 +16,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { SocketModule } from './module/socket/socket.module';
 import { CloudinaryModule } from './module/cloudinary/cloudinary.module';
 import { MailModuleModule } from './module/mail/mail-module.module';
-import { MailService } from './module/mail/mail-service.service';
+import { TasksModule } from './module/tasks/tasks.module';
 
 @Module({
   imports: [
@@ -61,6 +61,8 @@ import { MailService } from './module/mail/mail-service.service';
     CloudinaryModule,
 
     MailModuleModule,
+
+    TasksModule,
   ],
 
   controllers: [AppController],

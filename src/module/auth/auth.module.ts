@@ -8,7 +8,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Roles } from './enitites/roles.entity';
 import { Permission } from './enitites/permission.entity';
 import { RoleProfile } from './profile/role.profile';
-require('dotenv').config({ path: '.env' });
+import * as dotenv from "dotenv"
+dotenv.config()
 
 @Module({
   imports: [

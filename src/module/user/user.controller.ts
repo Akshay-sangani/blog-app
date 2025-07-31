@@ -38,6 +38,7 @@ import { PermissionGuard } from 'src/common/guard/permission.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CloudinaryResponse } from '../cloudinary/cloudinary-response';
+import { EmailDto } from './dto/user/email-user.dto';
 
 @ApiTags('User Apis')
 @ApiBearerAuth()
@@ -193,5 +194,16 @@ export class UserController {
   @UseInterceptors(FileInterceptor('file'))
   uploadImage(@UploadedFile() file: Express.Multer.File) {
     return this.cloudinaryService.uploadFile(file);
+  }
+
+
+
+  @Post('/send-mail')
+  sendResetPassMail(@Body() EmailDto:EmailDto){
+      this.userService.sendMail(EmailDto)
+  }
+  @Post('/reset-password')
+  resetPassword(@Body() EmailDto:EmailDto){
+      this.userService.resetPassowrd(EmailDto)
   }
 }

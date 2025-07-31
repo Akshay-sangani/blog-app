@@ -23,9 +23,9 @@ export class UpdateUserDto  {
   @IsString()
   @AutoMap()
   lastName: string;
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
+  // @ApiProperty()
+  // @IsNotEmpty()
+  // @IsString()
   @AutoMap()
   password: string;
 

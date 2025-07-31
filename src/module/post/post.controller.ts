@@ -110,6 +110,8 @@ export class PostController {
       user : request['user'],
       permission : request['ALL_GRANTED']
     }
+    console.log(request['ALL_GRANTED']);
+    console.log(obj);
     return this.postService.remove(paramDto, obj);
   }
 

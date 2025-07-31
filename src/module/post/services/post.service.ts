@@ -6,7 +6,7 @@ import { UserRepository } from 'src/module/user/repository/user.repository';
 import { RequestPostDto } from '../dto/post/request-post.dto';
 import { ResponsePostDto } from '../dto/post/response-post';
 import { PostRepositry } from '../repository/post.repository';
-import { Request } from 'express';
+import * as dotenv from "dotenv"
 import { NotFoundErr } from 'src/common/exceptions/notFoundException.exception';
 import { Post } from '../entities/post.entity';
 import { paramDto } from 'src/common/dto/params.dto';
@@ -14,6 +14,9 @@ import { UpdatePostDto } from '../dto/post/update-post.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { EOrder, IPageable } from 'src/common/filtering';
 import { MailService } from 'src/module/mail/mail-service.service';
+import { TasksService } from 'src/module/tasks/tasks.service';
+dotenv.config()
+
 export interface allPostRespones {
   post: ResponsePostDto;
   likeCount: number;
@@ -24,19 +27,30 @@ export class PostService {
     readonly PostRepo: PostRepositry,
     readonly userRepo: UserRepository,
     @InjectMapper() readonly mapper: Mapper,
-    readonly mailService : MailService
+    readonly mailService: MailService,
+    readonly TaskService: TasksService,
   ) {}
 
   async create(
-    payload : {email: string},
+    payload: { email: string },
     createPostDto: RequestPostDto,
   ): Promise<ResponsePostDto> {
-    const email =payload.email;
+    const email = payload.email;
     const user = await this.userRepo.allAsync({ email: email });
     if (user.length > 0) {
       createPostDto.author = user[0];
       const post = await this.PostRepo.createAsync(createPostDto);
-      const mail = await this.mailService.send({to : email,subject : "Post Creation",message :"Your Post has been published..."})
+      const res = this.TaskService.createTimeoutJob('mail', 300000, () => {
+        return this.mailService.send({
+          to: email,
+          subject: 'Post Creation',
+          message: 'Your Post has been published...',
+          link : process.env.FRONTENDURL
+        });
+      });
+      if (res.success) {
+        this.TaskService.createTimeoutJob('mail-clear',300000,()=>this.TaskService.deleteJob('mail', 'timeout'))
+      }
       return post;
     }
     throw new RpcInternalServerErrorException(`Error in createing`);
@@ -68,7 +82,7 @@ export class PostService {
 
   async findOne(paramDto: paramDto): Promise<ResponsePostDto[]> {
     const post = await this.PostRepo.getWithAsync({
-      relations: ['comments', 'author', 'likedBy','comments.user'],
+      relations: ['comments', 'author', 'likedBy', 'comments.user'],
       id: paramDto.id,
     });
     // console.log('>>>>>>>>>>>>>>>>>>>>>..', post);
@@ -81,7 +95,7 @@ export class PostService {
   async update(
     paramDto: paramDto,
     updatePostDto: UpdatePostDto,
-    payload : {ALL_GRANTED:boolean}
+    payload: { ALL_GRANTED: boolean },
   ): Promise<ResponsePostDto> {
     const post = await this.PostRepo.getWithAsync({
       relations: ['author'],
@@ -95,9 +109,9 @@ export class PostService {
 
     // const email = request['user'].email;
     // const user = await this.userRepo.allAsync({ email: email });
-    if ((post.length > 0 ) || payload.ALL_GRANTED) {
+    if (post.length > 0 || payload.ALL_GRANTED) {
       updatePostDto.id = Number(paramDto.id);
-      updatePostDto.author = post[0].author
+      updatePostDto.author = post[0].author;
       // console.log(".................",updatePostDto);
       const updatedPost = await this.PostRepo.updateAsync(updatePostDto);
       return updatedPost;
@@ -106,26 +120,32 @@ export class PostService {
     }
   }
 
-  async remove(paramDto: paramDto, payload: { user:{email : string} ; permission: {ALL_GRANTED : boolean}; } ): Promise<string> {
+  async remove(
+    paramDto: paramDto,
+    payload: { user: { email: string }; permission: boolean },
+  ): Promise<string> {
     const post = await this.PostRepo.getWithAsync({
       relations: ['author'],
       id: paramDto.id,
     });
+    console.log(payload.permission);
     const email = payload.user.email;
-    console.log(post);
     if (post.length == 0) {
       console.log('jkhaud fguyeggsuuo uougugugyugy   ');
       throw new NotFoundErr('No Post Found for delete');
-    }
-    const user = await this.userRepo.allAsync({ email: email });
-    const user_id = post[0].author.id;
-    if (user_id === user[0].id || payload.permission.ALL_GRANTED) {
-      if (post) {
-        const deletePost = await this.PostRepo.deleteAsync(paramDto.id);
-        return `This action removes a #${paramDto.id} post`;
+    }else{
+
+      const user = await this.userRepo.allAsync({ email: email });
+      const user_id = post[0].author.id;
+      console.log(user_id , user[0].id  ,payload.permission);
+      if (user_id === user[0].id || payload.permission) {
+        console.log("objectasvsvcbsnvsvsvvsvsvsvsvsbsvsvvvbvvvvbvvbv");
+          const deletePost = await this.PostRepo.deleteAsync(paramDto.id);
+          return `This action removes a #${paramDto.id} post`;
+        
       }
     }
-    throw new NotFoundErr(`post not found!!!!!`);
+    // throw new NotFoundErr(`post not found!!!!!`);
   }
 
   async postPagination(
@@ -161,7 +181,6 @@ export class PostService {
     return post;
   }
 
-
   async seacrhPost(content: string): Promise<ResponsePostDto[]> {
     //  const filterOp = await this.PostRepo.FilterGenerate(
     //       Post,
@@ -169,13 +188,12 @@ export class PostService {
     //       EFilterOperation.ILike,
     //     );
     // console.log(content);
-    if(content.length === 0){
+    if (content.length === 0) {
       throw new NotFoundErr('No Post Found!!!');
-
     }
     const post = await this.PostRepo.searching({
       content: content,
-      relations : ["author"]
+      relations: ['author'],
     });
     if (post.length === 0) {
       throw new NotFoundErr('No Post Found!!!');
@@ -183,15 +201,13 @@ export class PostService {
     return post;
   }
 
-   async PaginationData(
-   page: number,
-  ): Promise<IPageable<ResponsePostDto>> {
+  async PaginationData(page: number): Promise<IPageable<ResponsePostDto>> {
     console.log(PaginationDto);
     const posts = await this.PostRepo.pagedAsync({
       $page: page,
-      $perPage : 6,
+      $perPage: 6,
       $orderBy: `createdAt`,
-      $order : EOrder.Desc
+      $order: EOrder.Desc,
     });
     if (!posts) {
       throw new NotFoundErr(`No Posts Found!!!`);

@@ -38,7 +38,7 @@ export class AuthService {
         return { status: 200, message: 'Login Successfull', token: token };
       } else {
         // return { message: 'Invalid Email or Password', status: 404 };
-        throw new NotFoundErr('Email or password is Wrong');
+        throw new NotFoundErr('Invalid Credentials Please Try again !!!');
       }
     }
   }
