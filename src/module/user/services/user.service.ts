@@ -151,7 +151,7 @@ export class UserService {
     }else{
       const link = process.env.FRONTENDURL
 
-      this.mailService.send({to : EmailDto.email , subject : 'Reset Password' , message : 'Click here to reset Password' , link : `/${link}/reset-password/?email=${EmailDto.email}`})
+      this.mailService.send({to : EmailDto.email , subject : 'Reset Password' , message : 'Password reset link' , link : `${link}/reset-password/?email=${EmailDto.email}`})
     }
     return "mail sended";
   }

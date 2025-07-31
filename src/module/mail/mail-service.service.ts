@@ -21,6 +21,7 @@ export class MailService {
         pass: process.env.GOOGLE_MAIL_APP_PASSWORD,
       },
     });
+    console.log(link);
 
     const htmlString = `<div style="display:flex; justify-content: center; align-items:center; margin-top:20px; flex-direction:column; background-color:#f0f4f8; padding:30px; border-radius:12px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);">
       <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center;">  
