@@ -15,6 +15,8 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { EOrder, IPageable } from 'src/common/filtering';
 import { MailService } from 'src/module/mail/mail-service.service';
 import { TasksService } from 'src/module/tasks/tasks.service';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 dotenv.config()
 
 export interface allPostRespones {
@@ -51,6 +53,10 @@ export class PostService {
       if (res.success) {
         this.TaskService.createTimeoutJob('mail-clear',300000,()=>this.TaskService.deleteJob('mail', 'timeout'))
       }
+     
+
+
+
       return post;
     }
     throw new RpcInternalServerErrorException(`Error in createing`);
@@ -61,7 +67,7 @@ export class PostService {
       relations: ['comments', 'likedBy', 'author'],
     });
     console.log(posts);
-    const res = await this.mapper.mapArray(posts, Post, ResponsePostDto);
+    const res = this.mapper.mapArray(posts, Post, ResponsePostDto);
     if (res.length > 0) {
       const response = res.map((p) => p.likedBy.length);
       const postData = res.filter((e) => delete e.likedBy);

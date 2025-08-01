@@ -63,6 +63,7 @@ import { TasksModule } from './module/tasks/tasks.module';
     MailModuleModule,
 
     TasksModule,
+
   ],
 
   controllers: [AppController],

@@ -15,7 +15,7 @@ import { MailModuleModule } from '../mail/mail-module.module';
 import { TasksModule } from '../tasks/tasks.module';
 
 @Module({
-  imports  : [TypeOrmModule.forFeature([Post,Comment]), UserModule,AuthModule, MailModuleModule , TasksModule],
+  imports  : [TypeOrmModule.forFeature([Post,Comment]), UserModule,AuthModule, MailModuleModule , TasksModule  ],
   controllers: [PostController ],
   providers: [PostService,CommentService ,PostRepositry ,CommentRepositry,PostProfile,LikeService],
 })
