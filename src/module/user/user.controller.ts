@@ -144,7 +144,7 @@ export class UserController {
   @UseGuards(AuthGuard, PermissionGuard)
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-   type : updateUserProfileDto
+    type: updateUserProfileDto,
   })
   @UseInterceptors(FileInterceptor('file'))
   @Put('/profile/update')
@@ -154,15 +154,15 @@ export class UserController {
     @Body() updateUserProfileDto: updateUserProfileDto,
   ): Promise<ResponseUserProfile> {
     console.log(file);
-    let url: string =  null;
-    if(file){
-        const  uploadFile = await this.cloudinaryService.uploadFile(file);
-        url = uploadFile.secure_url; 
+    let url: string = null;
+    if (file) {
+      const uploadFile = await this.cloudinaryService.uploadFile(file);
+      url = uploadFile.secure_url;
     }
     return this.ProfileService.updateUserProfile(
       request['user'],
       updateUserProfileDto,
-      url
+      url,
     );
   }
 
@@ -196,14 +196,13 @@ export class UserController {
     return this.cloudinaryService.uploadFile(file);
   }
 
-
-
   @Post('/send-mail')
-  sendResetPassMail(@Body() EmailDto:EmailDto){
-      this.userService.sendMail(EmailDto)
+  sendResetPassMail(@Body() EmailDto: EmailDto) {
+   return this.userService.sendMail(EmailDto);
   }
+
   @Post('/reset-password')
-  resetPassword(@Body() EmailDto:EmailDto){
-      this.userService.resetPassowrd(EmailDto)
+  resetPassword(@Body() EmailDto: EmailDto) {
+   return this.userService.resetPassword(EmailDto);
   }
 }

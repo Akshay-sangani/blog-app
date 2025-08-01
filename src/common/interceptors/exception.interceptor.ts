@@ -6,9 +6,10 @@ import { RpcBaseException } from "../exceptions";
 @Injectable()
 export class RpcGlobalExceptionInterceptor implements NestInterceptor {
   public intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    // console.log("object");
     return next.handle().pipe(
       catchError((error) => {
-     //   console.log("herer");
+        console.log(error);
         if (error.isRpc && !(error instanceof HttpException)) {
           throw new HttpException(error.payload, error.status);
         }

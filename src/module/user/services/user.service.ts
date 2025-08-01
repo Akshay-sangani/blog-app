@@ -8,17 +8,17 @@ import { UserRepository } from '../repository/user.repository';
 import * as bcrypt from 'bcrypt';
 import { NotFoundErr } from 'src/common/exceptions/notFoundException.exception';
 import { User } from '../entities/user.entity';
-import { Request } from 'express';
 import { UpdateUserDto } from '../dto/user/update-user.dto';
 import { paramDto } from 'src/common/dto/params.dto';
 import { feildDto } from 'src/common/dto/feildDto.dto';
 import { EFilterOperation } from 'src/common';
 import { RoleRepository } from 'src/module/auth/repository/roles.reposiory';
-import { Roles } from 'src/module/auth/enitites/roles.entity';
 import { EOrder } from 'src/common/filtering';
 import { MailService } from 'src/module/mail/mail-service.service';
 import { EmailDto } from '../dto/user/email-user.dto';
 import * as dotenv from "dotenv"
+import { JwtService } from '@nestjs/jwt';
+import { BadRequest } from 'src/common/exceptions/badRequestExecption';
 dotenv.config()
 
 @Injectable()
@@ -27,6 +27,7 @@ export class UserService {
     private readonly UserRepo: UserRepository,
     private readonly RoleRepo: RoleRepository,
     private readonly mailService: MailService,
+    private readonly jwtService : JwtService,
     @InjectMapper() readonly mapper: Mapper,
   ) {}
 
@@ -145,26 +146,36 @@ export class UserService {
   }
 
   async sendMail(EmailDto : EmailDto){
-    const user = await this.UserRepo.existAsync({email : EmailDto.email});
-    if(!user){
+    const user = await this.UserRepo.allAsync({email : EmailDto.email});
+    if(user.length === 0){
       throw new NotFoundErr('Email is Wrong Try again');
     }else{
       const link = process.env.FRONTENDURL
-
-      this.mailService.send({to : EmailDto.email , subject : 'Reset Password' , message : 'Password reset link' , link : `${link}/reset-password/?email=${EmailDto.email}`})
+      const token =this.jwtService.sign({ email: EmailDto.email, password: user[0].password })
+      this.mailService.send({to : EmailDto.email , subject : 'Reset Password' ,
+         message : 'Password reset link(link will be valid for 24h and can be used only once)' ,
+          link : `${link}/reset-password/?token=${token}`})
     }
     return "mail sended";
   }
 
-  async resetPassowrd(EmailDto : EmailDto){
-    const user = await this.UserRepo.allAsync({email : EmailDto.email});
-    if(!user){
-      throw new NotFoundErr('User Not Found');
+  async resetPassword(EmailDto : EmailDto){
+    
+    const decoded =await this.jwtService.verify(EmailDto.token , {
+      secret : process.env.JWT_SECRET
+    })
+    const user = await this.UserRepo.allAsync({email : decoded.email});
+    if(decoded.password !== user[0].password){
+      throw new BadRequest("Invalid Url")
     }
+    if(user.length === 0){
+      throw new NotFoundErr('User Not Found');
+    }else{
       user[0].password = await bcrypt.hash(EmailDto.password,10);
       const updatePass = await this.UserRepo.createAsync(user[0])
     
-    return updatePass;
+    return "password updated";
+    }
   }
 
 }

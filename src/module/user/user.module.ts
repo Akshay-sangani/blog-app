@@ -11,9 +11,15 @@ import { ProfileService } from './services/profile.service';
 import { AuthModule } from '../auth/auth.module';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { MailModuleModule } from '../mail/mail-module.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports : [AuthModule,TypeOrmModule.forFeature([User,Profile]) , CloudinaryModule , MailModuleModule],
+  imports : [AuthModule,TypeOrmModule.forFeature([User,Profile]) , CloudinaryModule , MailModuleModule,
+  JwtModule.register({
+    secret : process.env.JWT_SECRET,
+     signOptions: { expiresIn: '24h' },
+  })
+],
   controllers: [UserController],
   providers: [UserService, UserRepository , UserProfile , ProfileRepository, ProfileService],
   exports: [UserRepository ,ProfileRepository, UserProfile,ProfileService],
