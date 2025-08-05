@@ -10,10 +10,11 @@ import {
   Put,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestPostDto } from './dto/post/request-post.dto';
 import { ResponsePostDto } from './dto/post/response-post';
 import { CommentService } from './services/comments.service';
@@ -30,6 +31,9 @@ import { RequestCommentDto } from './dto/comment/request-comment.dto';
 import { PermissionDecortaor } from 'src/common/decoratores/permission.decortaores';
 import { PermissionsEnum } from 'src/common/enums/permission.dto';
 import { PermissionGuard } from 'src/common/guard/permission.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { CloudinaryResponse } from '../cloudinary/cloudinary-response';
 
 @ApiTags('Post Apis')
 @ApiBearerAuth()
@@ -40,6 +44,7 @@ export class PostController {
     private readonly postService: PostService,
     readonly commentService: CommentService,
     readonly likeService: LikeService,
+    readonly cloudinaryService : CloudinaryService
   ) {}
   @PermissionDecortaor(PermissionsEnum.WriteSelf)
   @UseGuards(AuthGuard, PermissionGuard)
@@ -75,6 +80,7 @@ export class PostController {
   })
   @Get(':id')
   findOne(@Param() paramDto: paramDto): Promise<ResponsePostDto[]> {
+    console.log(paramDto);
     return this.postService.findOne(paramDto);
   }
   
@@ -224,5 +230,22 @@ export class PostController {
     return this.postService.PaginationData(page);
   }
 
-
+    @Post('upload')
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          file: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    })
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadImage(@UploadedFile() file: Express.Multer.File) {
+      const post :CloudinaryResponse =await this.cloudinaryService.uploadFile(file)
+      return post.secure_url;
+    }
 }

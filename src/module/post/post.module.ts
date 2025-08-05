@@ -13,9 +13,10 @@ import { LikeService } from './services/like.service';
 import { AuthModule } from '../auth/auth.module';
 import { MailModuleModule } from '../mail/mail-module.module';
 import { TasksModule } from '../tasks/tasks.module';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
-  imports  : [TypeOrmModule.forFeature([Post,Comment]), UserModule,AuthModule, MailModuleModule , TasksModule  ],
+  imports  : [TypeOrmModule.forFeature([Post,Comment]), UserModule,AuthModule, MailModuleModule , TasksModule ,CloudinaryModule ],
   controllers: [PostController ],
   providers: [PostService,CommentService ,PostRepositry ,CommentRepositry,PostProfile,LikeService],
 })
